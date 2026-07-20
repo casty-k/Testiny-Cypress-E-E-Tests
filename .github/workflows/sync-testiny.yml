@@ -1,14 +1,9 @@
 name: Sync Testiny → Cypress
 
 on:
-  # Scheduled sync (daily at 6 AM UTC)
   schedule:
     - cron: '0 6 * * *'
-
-  # Manual trigger from GitHub UI
   workflow_dispatch:
-
-  # Webhook trigger from Testiny
   repository_dispatch:
     types: [testiny-update]
 
@@ -31,16 +26,16 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-  - name: Install dependencies
-    run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-  - name: Run Testiny sync
-    run: npm run sync:testiny
-    env:
-      TESTINY_API_TOKEN: ${{ secrets.TESTINY_API_KEY }}
-      TESTINY_PROJECT_ID: 7
+      - name: Run Testiny sync
+        env:
+          TESTINY_API_TOKEN: ${{ secrets.TESTINY_API_KEY }}
+          TESTINY_PROJECT_ID: 7
+        run: npm run sync:testiny
 
-  - name: Check for changes
+      - name: Check for changes
         id: check-changes
         run: |
           if [ -n "$(git status --porcelain)" ]; then
@@ -66,39 +61,30 @@ jobs:
           title: 'chore: sync Testiny → Cypress feature files'
           body: |
             ## 📝 Automatic Testiny Sync
-
+            
             This PR contains automatically generated feature files from Testiny test cases.
-
+            
             ### What changed:
             - Updated/created Cypress BDD feature files
             - Gherkin scenarios from Testiny test cases
-
+            
             ### Next steps:
             1. Review the changes in the "Files changed" tab
             2. Merge if changes look good
             3. Implement step definitions for new scenarios
             4. Run `npm run cypress:run` to execute tests
-
+            
             ### ℹ️ Notes:
             - Feature files are auto-generated; edit test cases in Testiny
             - Do not manually edit generated feature files
             - Sync runs daily at 6 AM UTC and on Testiny updates
           branch: chore/sync-testiny-cypress
           delete-branch: true
-          reviewers: |
-            ${{ github.repository_owner }}
           labels: 'automation, testiny-sync'
-
-      - name: Skip PR (no changes)
-        if: steps.check-changes.outputs.has-changes == 'false'
-        run: |
-          echo "✅ No changes detected"
-          echo "Feature files are up to date with Testiny"
 
       - name: Sync Summary
         run: |
           echo "🔄 Sync Summary:"
-          echo "  Project ID: OS2"
+          echo "  Project ID: 7 (OS2)"
           echo "  Features directory: cypress/features/"
-          echo "  API: Testiny"
           echo "  Status: Complete ✅"
