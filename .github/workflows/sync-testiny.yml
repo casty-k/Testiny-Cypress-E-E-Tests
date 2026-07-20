@@ -88,3 +88,65 @@ jobs:
           echo "  Project ID: 7 (OS2)"
           echo "  Features directory: cypress/features/"
           echo "  Status: Complete ✅"
+
+      - name: Send Slack Notification
+        if: always()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "🔄 Testiny → Cypress Sync Report",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "🔄 Testiny → Cypress Sync Report"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Status:*\n✅ Complete"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project:*\nOS2"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Changes:*\n${{ steps.check-changes.outputs.has-changes == 'true' && '📝 Updated' || '✅ No changes' }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*PR Created:*\n${{ steps.check-changes.outputs.has-changes == 'true' && '✅ Yes' || '❌ No' }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Workflow Details:*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run> | Branch: `main` | Trigger: ${{ github.event_name }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "💡 Feature files auto-synced from Testiny. Edit test cases in Testiny to trigger updates."
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+ 
