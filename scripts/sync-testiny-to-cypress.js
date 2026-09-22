@@ -97,7 +97,7 @@ async function fetchTestCases() {
     // Build query payload (no pagination, fetch all)
     const queryPayload = {
       label: 'tc_getInFolderOrder',
-      pagination: { limit: 500 }, // Increase limit to fetch more per request
+      pagination: { limit: 500000000 }, // Increase limit to fetch more per request
       order: [
         {
           column: 'testcase_folder.id',
